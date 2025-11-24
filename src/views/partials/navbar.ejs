@@ -1,0 +1,20 @@
+<nav class="glass-card rounded-2xl p-4 mb-8">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-6">
+            <a href="/" class="text-xl font-bold <%= currentPage === 'home' ? 'text-sky-400' : 'text-white hover:text-sky-300' %> transition-colors">
+                🃏 Echange Cartes 3SLHB
+            </a>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/" class="px-4 py-2 <%= currentPage === 'home' ? 'bg-sky-500/20 text-sky-400' : 'text-slate-300 hover:text-white' %> rounded-lg transition-all">
+                Accueil
+            </a>
+            <a href="/member/add" class="px-4 py-2 <%= currentPage === 'add' ? 'bg-sky-500/20 text-sky-400' : 'text-slate-300 hover:text-white' %> rounded-lg transition-all">
+                Ajouter mes doubles
+            </a>
+            <a href="/admin" class="px-4 py-2 text-slate-300 hover:text-white rounded-lg transition-all">
+                ⚙️ Admin
+            </a>
+        </div>
+    </div>
+</nav>

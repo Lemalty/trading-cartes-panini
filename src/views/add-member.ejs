@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter mes doubles - 3SLHB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .bg-mesh {
+            background: linear-gradient(135deg, #0c1e3d 0%, #1e3a5f 50%, #2e5984 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card-strong {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-mesh min-h-screen p-4 md:p-8">
+
+<div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-20 left-10 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+</div>
+
+<div class="max-w-4xl mx-auto relative z-10">
+    <%- include('partials/navbar', { currentPage: 'add' }) %>
+
+    <div class="glass-card-strong rounded-3xl p-8 md:p-12">
+        <h1 class="text-4xl md:text-5xl font-black bg-gradient-to-r from-sky-200 via-sky-400 to-sky-200 bg-clip-text text-transparent mb-4 text-center">
+            Ajouter mes doubles
+        </h1>
+        <p class="text-center text-slate-300 mb-8">
+            Renseigne ton nom et les cartes que tu as en double pour que les autres puissent te trouver !
+        </p>
+
+        <form id="addMemberForm" class="space-y-6">
+            <!-- Nom -->
+            <div>
+                <label for="displayName" class="block text-sm font-semibold text-slate-200 mb-2">
+                    Ton nom, prénom ou surnom *
+                </label>
+                <input type="text" id="displayName" name="displayName" required
+                       class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                       placeholder="Ex: Jean Dupont, JD, Jean...">
+            </div>
+
+            <!-- Cartes -->
+            <div>
+                <label for="cards" class="block text-sm font-semibold text-slate-200 mb-2">
+                    Tes cartes en double
+                </label>
+                <p class="text-sm text-slate-400 mb-2">
+                    Sépare les numéros par des virgules. Ex: 1, 5, 23, 42, I2, A4, K3
+                </p>
+                <textarea id="cards" name="cards" rows="4"
+                          class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all resize-none"
+                          placeholder="1, 5, 23, 42, I2, A4..."></textarea>
+
+                <!-- Validation en temps réel -->
+                <div id="validation" class="mt-3 hidden">
+                    <div id="validCards" class="hidden mb-2">
+                        <p class="text-sm font-semibold text-green-400 mb-1">✓ Cartes valides :</p>
+                        <div id="validCardsList" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    <div id="invalidCards" class="hidden">
+                        <p class="text-sm font-semibold text-red-400 mb-1">✗ Cartes invalides :</p>
+                        <div id="invalidCardsList" class="flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="errorMessage" class="hidden glass-card border-red-500/50 rounded-xl p-4">
+                <p class="text-red-400 text-sm"></p>
+            </div>
+
+            <div id="successMessage" class="hidden glass-card border-green-500/50 rounded-xl p-4">
+                <p class="text-green-400 text-sm font-semibold">✓ Membre ajouté avec succès !</p>
+                <a href="/" class="text-sky-400 hover:text-sky-300 text-sm underline mt-2 inline-block">
+                    Retour à l'accueil
+                </a>
+            </div>
+
+            <!-- Boutons -->
+            <div class="flex gap-4">
+                <button type="submit" id="submitBtn"
+                        class="flex-1 bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-sky-500/50">
+                    <span id="btnText">Ajouter mes doubles</span>
+                    <span id="btnLoading" class="hidden">Ajout en cours...</span>
+                </button>
+                <a href="/"
+                   class="px-6 py-3 glass-card text-slate-300 hover:text-white font-semibold rounded-xl transition-all text-center">
+                    Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+	const form = document.getElementById('addMemberForm');
+	const cardsInput = document.getElementById('cards');
+	const validation = document.getElementById('validation');
+	const validCards = document.getElementById('validCards');
+	const invalidCards = document.getElementById('invalidCards');
+	const validCardsList = document.getElementById('validCardsList');
+	const invalidCardsList = document.getElementById('invalidCardsList');
+	const errorMessage = document.getElementById('errorMessage');
+	const successMessage = document.getElementById('successMessage');
+	const submitBtn = document.getElementById('submitBtn');
+	const btnText = document.getElementById('btnText');
+	const btnLoading = document.getElementById('btnLoading');
+
+	let validationTimeout;
+
+	// Validation en temps réel
+	cardsInput.addEventListener('input', function() {
+		const value = cardsInput.value.trim();
+
+		if (value === '') {
+			validation.classList.add('hidden');
+			return;
+		}
+
+		clearTimeout(validationTimeout);
+		validationTimeout = setTimeout(async () => {
+			try {
+				const response = await fetch('/api/cards/validate', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ cards: value })
+				});
+
+				const data = await response.json();
+
+				if (data.success) {
+					const { valid, invalid } = data.validation;
+
+					if (valid.length > 0) {
+						validCardsList.innerHTML = valid.map(card =>
+							`<span class="px-2 py-1 bg-green-500/20 text-green-300 rounded text-xs font-semibold">${card}</span>`
+						).join('');
+						validCards.classList.remove('hidden');
+					} else {
+						validCards.classList.add('hidden');
+					}
+
+					if (invalid.length > 0) {
+						invalidCardsList.innerHTML = invalid.map(card =>
+							`<span class="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs font-semibold">${card}</span>`
+						).join('');
+						invalidCards.classList.remove('hidden');
+					} else {
+						invalidCards.classList.add('hidden');
+					}
+
+					validation.classList.remove('hidden');
+				}
+			} catch (error) {
+				console.error('Validation error:', error);
+			}
+		}, 500);
+	});
+
+	// Soumission du formulaire
+	form.addEventListener('submit', async function(e) {
+		e.preventDefault();
+
+		errorMessage.classList.add('hidden');
+		successMessage.classList.add('hidden');
+		submitBtn.disabled = true;
+		btnText.classList.add('hidden');
+		btnLoading.classList.remove('hidden');
+
+		const formData = {
+			displayName: document.getElementById('displayName').value,
+			cards: cardsInput.value
+		};
+
+		try {
+			const response = await fetch('/api/member', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(formData)
+			});
+
+			const data = await response.json();
+
+			if (data.success) {
+				successMessage.classList.remove('hidden');
+				form.reset();
+				validation.classList.add('hidden');
+
+				setTimeout(() => {
+					window.location.href = '/';
+				}, 2000);
+			} else {
+				errorMessage.querySelector('p').textContent = data.error || 'Une erreur est survenue';
+				errorMessage.classList.remove('hidden');
+				submitBtn.disabled = false;
+				btnText.classList.remove('hidden');
+				btnLoading.classList.add('hidden');
+			}
+		} catch (error) {
+			console.error('Submit error:', error);
+			errorMessage.querySelector('p').textContent = 'Erreur de connexion au serveur';
+			errorMessage.classList.remove('hidden');
+			submitBtn.disabled = false;
+			btnText.classList.remove('hidden');
+			btnLoading.classList.add('hidden');
+		}
+	});
+</script>
+
+</body>
+</html>

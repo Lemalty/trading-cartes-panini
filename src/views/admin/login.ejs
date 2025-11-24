@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Connexion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .bg-mesh {
+            background: linear-gradient(135deg, #0c1e3d 0%, #1e3a5f 50%, #2e5984 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        .glass-card-strong {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-mesh min-h-screen flex items-center justify-center p-4">
+
+<div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-20 left-10 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+</div>
+
+<div class="max-w-md w-full relative z-10">
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-black bg-gradient-to-r from-sky-200 via-sky-400 to-sky-200 bg-clip-text text-transparent mb-2">
+            Administration
+        </h1>
+        <p class="text-slate-300">Trading Cartes 3SLHB</p>
+    </div>
+
+    <div class="glass-card-strong rounded-3xl p-8">
+        <form method="POST" action="/admin/login" class="space-y-6">
+            <div>
+                <label for="password" class="block text-sm font-semibold text-slate-200 mb-2">
+                    Mot de passe administrateur
+                </label>
+                <input type="password" id="password" name="password" required
+                       class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                       placeholder="••••••••">
+            </div>
+
+            <% if (error) { %>
+                <div class="bg-red-500/10 border border-red-500/50 rounded-xl p-4">
+                    <p class="text-red-400 text-sm">
+                        <%= error %>
+                    </p>
+                </div>
+            <% } %>
+
+            <button type="submit"
+                    class="w-full bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-sky-500/50">
+                Se connecter
+            </button>
+
+            <div class="text-center">
+                <a href="/" class="text-sky-400 hover:text-sky-300 text-sm transition-colors">
+                    Retour à l'accueil
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

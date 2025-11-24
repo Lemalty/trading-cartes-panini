@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Configuration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .bg-mesh {
+            background: linear-gradient(135deg, #0c1e3d 0%, #1e3a5f 50%, #2e5984 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card-strong {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-mesh min-h-screen p-4 md:p-8">
+
+<div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-20 left-10 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+</div>
+
+<div class="max-w-4xl mx-auto relative z-10">
+    <!-- Navigation -->
+    <nav class="glass-card rounded-2xl p-4 mb-8">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <h1 class="text-2xl font-bold text-white">⚙️ Administration</h1>
+            <div class="flex items-center gap-3">
+                <a href="/" class="px-4 py-2 text-slate-300 hover:text-white rounded-lg transition-all">
+                    Accueil
+                </a>
+                <a href="/admin/logout" class="px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-lg transition-all">
+                    Déconnexion
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Message de succès -->
+    <% if (success) { %>
+        <div class="glass-card border-green-500/50 rounded-2xl p-4 mb-6">
+            <p class="text-green-400 font-semibold">
+                ✓ Configuration mise à jour avec succès !
+            </p>
+        </div>
+    <% } %>
+
+    <!-- Configuration de l'album -->
+    <div class="glass-card-strong rounded-3xl p-8 mb-8">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+            <svg class="w-7 h-7 mr-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+            Configuration de l'album
+        </h2>
+
+        <form id="configForm" class="space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label for="maxNumericCard" class="block text-sm font-semibold text-slate-200 mb-2">
+                        Carte numérique maximale
+                    </label>
+                    <input type="number" id="maxNumericCard" name="maxNumericCard"
+                           value="<%= albumConfig.maxNumericCard %>" min="1" required
+                           class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all">
+                    <p class="text-xs text-slate-400 mt-1">Ex: 400 pour les cartes de 1 à 400</p>
+                </div>
+
+                <div>
+                    <label for="maxLetterPrefix" class="block text-sm font-semibold text-slate-200 mb-2">
+                        Lettre maximale
+                    </label>
+                    <input type="text" id="maxLetterPrefix" name="maxLetterPrefix"
+                           value="<%= albumConfig.maxLetterPrefix %>" maxlength="1" pattern="[A-Z]" required
+                           class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all uppercase">
+                    <p class="text-xs text-slate-400 mt-1">Ex: K pour les cartes A1, B1, ..., K1</p>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label for="maxLetterNumber" class="block text-sm font-semibold text-slate-200 mb-2">
+                        Nombre maximal par lettre
+                    </label>
+                    <input type="number" id="maxLetterNumber" name="maxLetterNumber"
+                           value="<%= albumConfig.maxLetterNumber %>" min="1" required
+                           class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all">
+                    <p class="text-xs text-slate-400 mt-1">Ex: 4 pour A1, A2, A3, A4</p>
+                </div>
+            </div>
+
+            <!-- Aperçu -->
+            <div class="glass-card rounded-xl p-4">
+                <p class="text-sm font-semibold text-slate-300 mb-2">Aperçu de la configuration :</p>
+                <div class="text-slate-400 text-sm space-y-1">
+                    <p>• Cartes numériques : <span class="text-sky-400 font-semibold">1 à <span id="previewNumeric"><%= albumConfig.maxNumericCard %></span></span></p>
+                    <p>• Cartes lettres : <span class="text-sky-400 font-semibold">A1 à <span id="previewLetter"><%= albumConfig.maxLetterPrefix %><%= albumConfig.maxLetterNumber %></span></span></p>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="errorMessage" class="hidden glass-card border-red-500/50 rounded-xl p-4">
+                <p class="text-red-400 text-sm"></p>
+            </div>
+
+            <div id="successMessage" class="hidden glass-card border-green-500/50 rounded-xl p-4">
+                <p class="text-green-400 text-sm font-semibold">✓ Configuration mise à jour !</p>
+            </div>
+
+            <!-- Boutons -->
+            <div class="flex gap-4">
+                <button type="submit" id="submitBtn"
+                        class="flex-1 bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-sky-500/50">
+                    <span id="btnText">Enregistrer la configuration</span>
+                    <span id="btnLoading" class="hidden">Enregistrement...</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Informations -->
+    <div class="glass-card rounded-2xl p-6">
+        <h3 class="text-lg font-semibold text-white mb-3 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Informations
+        </h3>
+        <ul class="text-sm text-slate-300 space-y-2">
+            <li>• Cette configuration définit les limites de l'album de cartes</li>
+            <li>• Les membres ne pourront ajouter que des cartes dans ces limites</li>
+            <li>• Vous pouvez modifier ces valeurs à tout moment</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+	const form = document.getElementById('configForm');
+	const maxNumericInput = document.getElementById('maxNumericCard');
+	const maxLetterPrefixInput = document.getElementById('maxLetterPrefix');
+	const maxLetterNumberInput = document.getElementById('maxLetterNumber');
+	const previewNumeric = document.getElementById('previewNumeric');
+	const previewLetter = document.getElementById('previewLetter');
+	const errorMessage = document.getElementById('errorMessage');
+	const successMessage = document.getElementById('successMessage');
+	const submitBtn = document.getElementById('submitBtn');
+	const btnText = document.getElementById('btnText');
+	const btnLoading = document.getElementById('btnLoading');
+
+	// Mise à jour de l'aperçu
+	function updatePreview() {
+		previewNumeric.textContent = maxNumericInput.value;
+		previewLetter.textContent = maxLetterPrefixInput.value.toUpperCase() + maxLetterNumberInput.value;
+	}
+
+	maxNumericInput.addEventListener('input', updatePreview);
+	maxLetterPrefixInput.addEventListener('input', function() {
+		this.value = this.value.toUpperCase();
+		updatePreview();
+	});
+	maxLetterNumberInput.addEventListener('input', updatePreview);
+
+	// Soumission du formulaire
+	form.addEventListener('submit', async function(e) {
+		e.preventDefault();
+
+		errorMessage.classList.add('hidden');
+		successMessage.classList.add('hidden');
+		submitBtn.disabled = true;
+		btnText.classList.add('hidden');
+		btnLoading.classList.remove('hidden');
+
+		const formData = {
+			maxNumericCard: maxNumericInput.value,
+			maxLetterPrefix: maxLetterPrefixInput.value.toUpperCase(),
+			maxLetterNumber: maxLetterNumberInput.value
+		};
+
+		try {
+			const response = await fetch('/admin/config', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(formData)
+			});
+
+			const data = await response.json();
+
+			if (data.success) {
+				successMessage.classList.remove('hidden');
+				setTimeout(() => {
+					successMessage.classList.add('hidden');
+				}, 3000);
+			} else {
+				errorMessage.querySelector('p').textContent = data.error || 'Une erreur est survenue';
+				errorMessage.classList.remove('hidden');
+			}
+		} catch (error) {
+			console.error('Submit error:', error);
+			errorMessage.querySelector('p').textContent = 'Erreur de connexion au serveur';
+			errorMessage.classList.remove('hidden');
+		} finally {
+			submitBtn.disabled = false;
+			btnText.classList.remove('hidden');
+			btnLoading.classList.add('hidden');
+		}
+	});
+</script>
+
+</body>
+</html>
