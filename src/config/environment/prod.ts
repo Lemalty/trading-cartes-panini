@@ -1,17 +1,20 @@
+const dbType = process.env.DB_TYPE as 'sqlite' | 'postgres' | 'mysql';
+
+if (!['sqlite', 'postgres', 'mysql'].includes(dbType)) {
+  throw new Error(`Invalid DB_TYPE: ${process.env.DB_TYPE}`);
+}
+
 export default {
+  "host": process.env.HOST || "0.0.0.0",
+  "port": process.env.PORT ? parseInt(process.env.PORT) : 3000,
+  "NODE_ENV": "prod",
   "dbConfig": {
-    "type": "sqlite",
-    "host": process.env.DB_HOST,
-    "username": process.env.DB_USER,
-    "password": process.env.DB_PASSWORD,
-    "database": process.env.DB_NAME,
+    "type": dbType,
+    "database": process.env.DB_DATABASE || "/app/data/Cagnotte.sqlite",
     "entities": [
-      "./src/entities/*.js"
+      "./dist/entities/*.js"
     ],
-    "synchronize": false,
+    "synchronize": true,
     "logging": false
-  },
-  "host": process.env.HOST,
-  "port": process.env.PORT,
-  "NODE_ENV": "prod"
+  }
 };

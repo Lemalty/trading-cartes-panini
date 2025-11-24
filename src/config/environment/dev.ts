@@ -7,9 +7,9 @@ export default {
     "host": "localhost",
     "username": "user",
     "password": "pwd",
-    "database": "Database",
+    "database": "trading_cards.sqlite",
     "entities": [
-      "./src/entities/*.js"
+      "./src/entities/*.ts"
     ],
     "synchronize": true,
     "logging": false
