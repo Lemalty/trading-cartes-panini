@@ -15,16 +15,14 @@ export class CardsController {
     }
 
     /**
-     * Page d'accueil - Liste tous les membres et leurs doubles
+     * Page d'accueil - Recherche de cartes et membres
      */
     async getHomePage(req: Request, res: Response): Promise<void> {
         try {
-            const members = await this.memberService.getAllMembersWithDuplicates();
-            const albumConfig = await this.cardService.getAlbumConfig();
+            const memberCount = await this.memberService.getMemberCount();
 
             res.render('index', {
-                members,
-                albumConfig,
+                memberCount,
                 currentPage: 'home'
             });
         } catch (error) {

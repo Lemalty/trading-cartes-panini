@@ -9,9 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            font-family: 'Inter', sans-serif;
-        }
+        * { font-family: 'Inter', sans-serif; }
         @keyframes gradient {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -31,8 +29,11 @@
             backdrop-filter: blur(24px);
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
+        .member-card {
+            transition: transform 0.2s, background 0.2s;
+        }
         .member-card:hover {
-            transform: translateX(8px) scale(1.02);
+            transform: translateY(-4px) scale(1.02);
             background: rgba(135, 206, 235, 0.15);
         }
         .card-badge {
@@ -40,6 +41,25 @@
         }
         .card-badge-wanted {
             background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+        .tab-active {
+            background: rgba(14, 165, 233, 0.2);
+            color: #38bdf8;
+            border-color: #38bdf8;
+        }
+        .tab-inactive {
+            color: #94a3b8;
+            border-color: transparent;
+        }
+        .tab-inactive:hover {
+            color: #e2e8f0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.25s ease-out;
         }
     </style>
 </head>
@@ -51,189 +71,279 @@
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sky-400/5 rounded-full blur-3xl"></div>
 </div>
 
-<div class="max-w-7xl mx-auto relative z-10">
+<div class="max-w-5xl mx-auto relative z-10">
     <%- include('partials/navbar', { currentPage: 'home' }) %>
 
-    <header class="text-center mb-12">
+    <!-- Hero -->
+    <header class="text-center mb-10">
         <h1 class="text-5xl md:text-7xl font-black bg-gradient-to-r from-sky-200 via-sky-400 to-sky-200 bg-clip-text text-transparent mb-4">
             Echange CARTES
         </h1>
-        <p class="text-xl text-slate-300">Album 3SLHB - Saison 2025-2026</p>
+        <p class="text-xl text-slate-300 mb-2">Album 3SLHB - Saison 2025-2026</p>
+        <p class="text-slate-400"><%= memberCount %> membre<%= memberCount > 1 ? 's' : '' %> inscrit<%= memberCount > 1 ? 's' : '' %></p>
     </header>
 
-    <!-- Barre de recherche -->
-    <div class="max-w-4xl mx-auto mb-8">
-        <div class="glass-card-strong rounded-2xl p-6">
-            <div class="grid md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-300 mb-2">Rechercher par membre</label>
-                    <div class="relative">
-                        <input type="text" id="searchMember" placeholder="Nom du membre..."
-                               class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all">
-                        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-300 mb-2">Rechercher par carte</label>
-                    <div class="relative">
-                        <input type="text" id="searchCard" placeholder="Ex: 42, I2, A4..."
-                               class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all">
-                        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                        </svg>
-                    </div>
-                </div>
+    <!-- Recherche -->
+    <div class="glass-card-strong rounded-3xl p-6 md:p-8 mb-8">
+        <!-- Onglets -->
+        <div class="flex gap-2 mb-6">
+            <button id="tabMember" class="tab-active px-5 py-2.5 rounded-xl font-semibold text-sm border-2 transition-all">
+                <svg class="w-4 h-4 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                Par membre
+            </button>
+            <button id="tabCard" class="tab-inactive px-5 py-2.5 rounded-xl font-semibold text-sm border-2 transition-all">
+                <svg class="w-4 h-4 inline-block mr-1.5 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+                Par carte
+            </button>
+        </div>
+
+        <!-- Champ recherche membre -->
+        <div id="searchMemberWrap">
+            <div class="relative">
+                <input type="text" id="searchMember" placeholder="Rechercher un membre par nom..."
+                       class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-5 py-4 pl-12 text-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                       autocomplete="off">
+                <svg class="w-6 h-6 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
             </div>
-            <div id="searchResults" class="mt-4 hidden">
-                <div class="text-slate-300 text-sm font-medium mb-2">Resultats :</div>
-                <div id="resultsContainer"></div>
+            <p class="text-xs text-slate-400 mt-2">Tape le nom d'un membre pour voir ses cartes en double et celles qu'il recherche</p>
+        </div>
+
+        <!-- Champ recherche carte -->
+        <div id="searchCardWrap" class="hidden">
+            <div class="relative">
+                <input type="text" id="searchCard" placeholder="Rechercher un numero de carte (ex: 42, I2, A4)..."
+                       class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-5 py-4 pl-12 text-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                       autocomplete="off">
+                <svg class="w-6 h-6 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
             </div>
+            <p class="text-xs text-slate-400 mt-2">Tape un numero de carte pour voir qui la possede en double</p>
         </div>
     </div>
 
-    <!-- Liste des membres -->
-    <div class="mb-8">
-        <h2 class="text-2xl font-bold text-white mb-6 text-center">
-            Membres et leurs doubles (<span id="memberCount"><%= members.length %></span>)
-        </h2>
-
-        <div id="membersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <% members.forEach(function(member) { %>
-                <a href="/member/<%= member.id %>" class="member-card glass-card rounded-xl p-5 transition-all duration-300 block">
-                    <div class="flex items-start justify-between mb-3">
-                        <div class="flex-grow min-w-0">
-                            <h3 class="text-lg font-semibold text-white truncate mb-1">
-                                <%= member.displayName %>
-                            </h3>
-                            <p class="text-sm text-slate-400">
-                                <%= member.duplicates.length %> carte<%= member.duplicates.length > 1 ? 's' : '' %> en double
-                                <% if (member.wanted.length > 0) { %>
-                                    &middot; <%= member.wanted.length %> recherchee<%= member.wanted.length > 1 ? 's' : '' %>
-                                <% } %>
-                            </p>
-                        </div>
-                    </div>
-                    <% if (member.duplicates.length > 0 || member.wanted.length > 0) { %>
-                        <div class="flex flex-wrap gap-2">
-                            <% member.duplicates.slice(0, 6).forEach(function(card) { %>
-                                <span class="card-badge px-2 py-1 rounded text-xs font-semibold text-white">
-                                    <%= card %>
-                                </span>
-                            <% }); %>
-                            <% if (member.duplicates.length > 6) { %>
-                                <span class="px-2 py-1 rounded text-xs font-semibold text-slate-400 bg-slate-700/50">
-                                    +<%= member.duplicates.length - 6 %>
-                                </span>
-                            <% } %>
-                            <% if (member.wanted.length > 0) { %>
-                                <span class="px-2 py-1 rounded text-xs font-semibold text-amber-400 bg-amber-500/20">
-                                    cherche <%= member.wanted.length %>
-                                </span>
-                            <% } %>
-                        </div>
-                    <% } else { %>
-                        <p class="text-sm text-slate-500 italic">Aucune carte enregistree</p>
-                    <% } %>
-                </a>
-            <% }); %>
+    <!-- Zone resultats -->
+    <div id="resultsArea">
+        <!-- Etat initial : illustration -->
+        <div id="emptyState" class="text-center py-16">
+            <svg class="w-24 h-24 mx-auto mb-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <p class="text-xl text-slate-500 font-semibold mb-2">Lance une recherche</p>
+            <p class="text-slate-600">Trouve un membre ou une carte pour commencer les echanges</p>
         </div>
 
-        <div id="noMembers" class="hidden text-center py-12">
-            <p class="text-xl text-slate-400">Aucun membre trouve</p>
+        <!-- Chargement -->
+        <div id="loadingState" class="hidden text-center py-16">
+            <div class="inline-block w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p class="text-slate-400">Recherche en cours...</p>
+        </div>
+
+        <!-- Aucun resultat -->
+        <div id="noResults" class="hidden text-center py-16">
+            <svg class="w-20 h-20 mx-auto mb-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-xl text-slate-500 font-semibold mb-1" id="noResultsText">Aucun resultat</p>
+            <p class="text-slate-600" id="noResultsHint"></p>
+        </div>
+
+        <!-- Resultats membres -->
+        <div id="memberResults" class="hidden">
+            <p class="text-sm text-slate-400 mb-4" id="memberResultsCount"></p>
+            <div id="memberResultsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+
+        <!-- Resultats carte -->
+        <div id="cardResults" class="hidden">
+            <div id="cardResultsContent"></div>
         </div>
     </div>
 </div>
 
 <script>
-	const searchMember = document.getElementById('searchMember');
-	const searchCard = document.getElementById('searchCard');
-	const searchResults = document.getElementById('searchResults');
-	const resultsContainer = document.getElementById('resultsContainer');
-	const membersList = document.getElementById('membersList');
-	const noMembers = document.getElementById('noMembers');
-	const memberCards = document.querySelectorAll('.member-card');
+    const tabMember = document.getElementById('tabMember');
+    const tabCard = document.getElementById('tabCard');
+    const searchMemberWrap = document.getElementById('searchMemberWrap');
+    const searchCardWrap = document.getElementById('searchCardWrap');
+    const searchMember = document.getElementById('searchMember');
+    const searchCard = document.getElementById('searchCard');
+    const emptyState = document.getElementById('emptyState');
+    const loadingState = document.getElementById('loadingState');
+    const noResults = document.getElementById('noResults');
+    const memberResults = document.getElementById('memberResults');
+    const cardResults = document.getElementById('cardResults');
 
-	let searchTimeout;
+    let searchTimeout;
 
-	// Recherche par membre (client-side)
-	searchMember.addEventListener('input', function(e) {
-		const query = e.target.value.toLowerCase().trim();
-		searchCard.value = '';
-		searchResults.classList.add('hidden');
+    function hideAllResults() {
+        emptyState.classList.add('hidden');
+        loadingState.classList.add('hidden');
+        noResults.classList.add('hidden');
+        memberResults.classList.add('hidden');
+        cardResults.classList.add('hidden');
+    }
 
-		let visibleCount = 0;
-		memberCards.forEach(card => {
-			const name = card.querySelector('h3').textContent.toLowerCase();
-			if (name.includes(query)) {
-				card.style.display = 'block';
-				visibleCount++;
-			} else {
-				card.style.display = 'none';
-			}
-		});
+    function showEmpty() {
+        hideAllResults();
+        emptyState.classList.remove('hidden');
+    }
 
-		document.getElementById('memberCount').textContent = visibleCount;
+    // Onglets
+    tabMember.addEventListener('click', function() {
+        tabMember.className = 'tab-active px-5 py-2.5 rounded-xl font-semibold text-sm border-2 transition-all';
+        tabCard.className = 'tab-inactive px-5 py-2.5 rounded-xl font-semibold text-sm border-2 transition-all';
+        searchMemberWrap.classList.remove('hidden');
+        searchCardWrap.classList.add('hidden');
+        searchCard.value = '';
+        searchMember.focus();
+        showEmpty();
+    });
 
-		if (visibleCount === 0 && query !== '') {
-			membersList.classList.add('hidden');
-			noMembers.classList.remove('hidden');
-		} else {
-			membersList.classList.remove('hidden');
-			noMembers.classList.add('hidden');
-		}
-	});
+    tabCard.addEventListener('click', function() {
+        tabCard.className = 'tab-active px-5 py-2.5 rounded-xl font-semibold text-sm border-2 transition-all';
+        tabMember.className = 'tab-inactive px-5 py-2.5 rounded-xl font-semibold text-sm border-2 transition-all';
+        searchCardWrap.classList.remove('hidden');
+        searchMemberWrap.classList.add('hidden');
+        searchMember.value = '';
+        searchCard.focus();
+        showEmpty();
+    });
 
-	// Recherche par carte (server-side)
-	searchCard.addEventListener('input', function(e) {
-		const query = e.target.value.trim().toUpperCase();
-		searchMember.value = '';
+    function renderMemberCard(member) {
+        const dupBadges = member.duplicates.slice(0, 8).map(card =>
+            `<span class="card-badge px-2 py-1 rounded text-xs font-semibold text-white">${card}</span>`
+        ).join('');
 
-		memberCards.forEach(card => card.style.display = 'block');
-		membersList.classList.remove('hidden');
-		noMembers.classList.add('hidden');
-		document.getElementById('memberCount').textContent = memberCards.length;
+        const extraDup = member.duplicates.length > 8
+            ? `<span class="px-2 py-1 rounded text-xs font-semibold text-slate-400 bg-slate-700/50">+${member.duplicates.length - 8}</span>`
+            : '';
 
-		if (query === '') {
-			searchResults.classList.add('hidden');
-			return;
-		}
+        const wantedBadge = member.wanted && member.wanted.length > 0
+            ? `<span class="px-2 py-1 rounded text-xs font-semibold text-amber-400 bg-amber-500/20">cherche ${member.wanted.length}</span>`
+            : '';
 
-		clearTimeout(searchTimeout);
-		searchTimeout = setTimeout(async () => {
-			try {
-				const response = await fetch(`/api/search?type=card&query=${encodeURIComponent(query)}`);
-				const data = await response.json();
+        const subtitle = member.duplicates.length + ' double' + (member.duplicates.length > 1 ? 's' : '')
+            + (member.wanted && member.wanted.length > 0 ? ` · ${member.wanted.length} recherchee${member.wanted.length > 1 ? 's' : ''}` : '');
 
-				if (data.success && data.result) {
-					if (data.result.members.length > 0) {
-						resultsContainer.innerHTML = `
-                        <div class="glass-card rounded-lg p-4">
-                            <p class="text-white font-semibold mb-2">Carte ${data.result.cardNumber} possedee par :</p>
-                            <div class="flex flex-wrap gap-2">
-                                ${data.result.members.map(m => `
-                                    <a href="/member/${m.id}" class="px-3 py-1 bg-sky-500/20 text-sky-300 rounded-lg hover:bg-sky-500/30 transition-colors">
-                                        ${m.displayName}
-                                    </a>
-                                `).join('')}
+        return `
+            <a href="/member/${member.id}" class="member-card glass-card rounded-xl p-5 block fade-in">
+                <div class="mb-3">
+                    <h3 class="text-lg font-semibold text-white truncate mb-1">${member.displayName}</h3>
+                    <p class="text-sm text-slate-400">${subtitle}</p>
+                </div>
+                ${member.duplicates.length > 0 || (member.wanted && member.wanted.length > 0) ?
+                    `<div class="flex flex-wrap gap-2">${dupBadges}${extraDup}${wantedBadge}</div>` :
+                    `<p class="text-sm text-slate-500 italic">Aucune carte enregistree</p>`
+                }
+            </a>
+        `;
+    }
+
+    // Recherche membre
+    searchMember.addEventListener('input', function() {
+        const query = searchMember.value.trim();
+
+        if (query.length < 2) {
+            showEmpty();
+            return;
+        }
+
+        clearTimeout(searchTimeout);
+        hideAllResults();
+        loadingState.classList.remove('hidden');
+
+        searchTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/search?type=member&query=${encodeURIComponent(query)}`);
+                const data = await response.json();
+
+                hideAllResults();
+
+                if (data.success && data.members && data.members.length > 0) {
+                    document.getElementById('memberResultsCount').textContent =
+                        data.members.length + ' membre' + (data.members.length > 1 ? 's' : '') + ' trouve' + (data.members.length > 1 ? 's' : '');
+                    document.getElementById('memberResultsList').innerHTML =
+                        data.members.map(m => renderMemberCard(m)).join('');
+                    memberResults.classList.remove('hidden');
+                } else {
+                    document.getElementById('noResultsText').textContent = 'Aucun membre trouve';
+                    document.getElementById('noResultsHint').textContent = 'Essaie avec un autre nom ou surnom';
+                    noResults.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                hideAllResults();
+                document.getElementById('noResultsText').textContent = 'Erreur de connexion';
+                document.getElementById('noResultsHint').textContent = 'Verifie ta connexion et reessaie';
+                noResults.classList.remove('hidden');
+            }
+        }, 400);
+    });
+
+    // Recherche carte
+    searchCard.addEventListener('input', function() {
+        const query = searchCard.value.trim().toUpperCase();
+
+        if (query === '') {
+            showEmpty();
+            return;
+        }
+
+        clearTimeout(searchTimeout);
+        hideAllResults();
+        loadingState.classList.remove('hidden');
+
+        searchTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/search?type=card&query=${encodeURIComponent(query)}`);
+                const data = await response.json();
+
+                hideAllResults();
+
+                if (data.success && data.result) {
+                    if (data.result.members && data.result.members.length > 0) {
+                        const content = `
+                            <div class="glass-card rounded-2xl p-6 fade-in">
+                                <h3 class="text-lg font-bold text-white mb-4 flex items-center">
+                                    <span class="card-badge px-3 py-1.5 rounded-lg text-sm font-bold text-white mr-3">${data.result.cardNumber}</span>
+                                    possedee par ${data.result.members.length} membre${data.result.members.length > 1 ? 's' : ''}
+                                </h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    ${data.result.members.map(m => `
+                                        <a href="/member/${m.id}" class="flex items-center gap-3 px-4 py-3 glass-card rounded-xl hover:bg-sky-500/10 transition-all">
+                                            <div class="w-10 h-10 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400 font-bold text-sm flex-shrink-0">
+                                                ${m.displayName.charAt(0).toUpperCase()}
+                                            </div>
+                                            <span class="text-white font-medium truncate">${m.displayName}</span>
+                                        </a>
+                                    `).join('')}
+                                </div>
                             </div>
-                        </div>
-                    `;
-					} else {
-						resultsContainer.innerHTML = `
-                        <div class="glass-card rounded-lg p-4">
-                            <p class="text-slate-400">Aucun membre ne possede la carte ${query}</p>
-                        </div>
-                    `;
-					}
-					searchResults.classList.remove('hidden');
-				}
-			} catch (error) {
-				console.error('Search error:', error);
-			}
-		}, 300);
-	});
+                        `;
+                        document.getElementById('cardResultsContent').innerHTML = content;
+                        cardResults.classList.remove('hidden');
+                    } else {
+                        document.getElementById('noResultsText').textContent = 'Personne n\'a la carte ' + query + ' en double';
+                        document.getElementById('noResultsHint').textContent = 'Reviens plus tard, quelqu\'un l\'ajoutera peut-etre !';
+                        noResults.classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                hideAllResults();
+                document.getElementById('noResultsText').textContent = 'Erreur de connexion';
+                document.getElementById('noResultsHint').textContent = 'Verifie ta connexion et reessaie';
+                noResults.classList.remove('hidden');
+            }
+        }, 400);
+    });
 </script>
 
 </body>

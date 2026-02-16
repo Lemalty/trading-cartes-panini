@@ -241,6 +241,13 @@ export class MemberService {
     }
 
     /**
+     * Compte le nombre total de membres
+     */
+    async getMemberCount(): Promise<number> {
+        return await this.memberRepository.count();
+    }
+
+    /**
      * Supprime un membre et tous ses duplicates
      */
     async deleteMember(memberId: number): Promise<void> {
