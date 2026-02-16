@@ -7,11 +7,14 @@ const cardsController = new CardsController();
 // Page d'accueil
 router.get('/', (req, res) => cardsController.getHomePage(req, res));
 
-// Page d'ajout d'un membre
-router.get('/member/add', (req, res) => cardsController.getAddMemberPage(req, res));
-
-// API - Ajout d'un membre
-router.post('/api/member', (req, res) => cardsController.addMember(req, res));
+// Redirection de l'ancienne page d'ajout vers la connexion
+router.get('/member/add', (req, res) => {
+    if (req.session.memberId) {
+        res.redirect('/my-cards');
+    } else {
+        res.redirect('/register');
+    }
+});
 
 // API - Validation de cartes
 router.post('/api/cards/validate', (req, res) => cardsController.validateCards(req, res));
