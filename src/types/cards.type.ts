@@ -12,6 +12,7 @@ export interface MemberWithDuplicates {
     id: number;
     displayName: string;
     duplicates: string[];
+    wanted: string[];
     createdAt: Date;
 }
 

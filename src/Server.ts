@@ -45,6 +45,7 @@ try {
 // Import routes AFTER database is initialized
 const adminRoutes = (await import("./routes/admin.routes.js")).default;
 const cardsRoutes = (await import("./routes/cards.routes.js")).default;
+const authRoutes = (await import("./routes/auth.routes.js")).default;
 
 const app = express();
 
@@ -72,6 +73,13 @@ app.use(session({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Middleware pour rendre les données de session disponibles dans les vues
+app.use((req, res, next) => {
+    res.locals.memberName = req.session.memberName || null;
+    res.locals.memberId = req.session.memberId || null;
+    next();
+});
+
 if (['dev', 'test', 'docker'].includes(process.env.NODE_ENV || '')) {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 } else {
@@ -81,6 +89,7 @@ if (['dev', 'test', 'docker'].includes(process.env.NODE_ENV || '')) {
 }
 
 // Routes
+app.use('/', authRoutes);
 app.use('/', cardsRoutes);
 app.use('/', adminRoutes);
 

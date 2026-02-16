@@ -38,6 +38,9 @@
         .card-badge {
             background: linear-gradient(135deg, #87CEEB 0%, #4A90E2 100%);
         }
+        .card-badge-wanted {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
     </style>
 </head>
 <body class="bg-mesh min-h-screen p-4 md:p-8">
@@ -84,7 +87,7 @@
                 </div>
             </div>
             <div id="searchResults" class="mt-4 hidden">
-                <div class="text-slate-300 text-sm font-medium mb-2">Résultats :</div>
+                <div class="text-slate-300 text-sm font-medium mb-2">Resultats :</div>
                 <div id="resultsContainer"></div>
             </div>
         </div>
@@ -106,32 +109,39 @@
                             </h3>
                             <p class="text-sm text-slate-400">
                                 <%= member.duplicates.length %> carte<%= member.duplicates.length > 1 ? 's' : '' %> en double
+                                <% if (member.wanted.length > 0) { %>
+                                    &middot; <%= member.wanted.length %> recherchee<%= member.wanted.length > 1 ? 's' : '' %>
+                                <% } %>
                             </p>
                         </div>
                     </div>
-                    <% if (member.duplicates.length > 0) { %>
+                    <% if (member.duplicates.length > 0 || member.wanted.length > 0) { %>
                         <div class="flex flex-wrap gap-2">
-                            <% member.duplicates.slice(0, 8).forEach(function(card) { %>
+                            <% member.duplicates.slice(0, 6).forEach(function(card) { %>
                                 <span class="card-badge px-2 py-1 rounded text-xs font-semibold text-white">
                                     <%= card %>
                                 </span>
                             <% }); %>
-                            <% if (member.duplicates.length > 8) { %>
+                            <% if (member.duplicates.length > 6) { %>
                                 <span class="px-2 py-1 rounded text-xs font-semibold text-slate-400 bg-slate-700/50">
-                                    +<%= member.duplicates.length - 8 %>
+                                    +<%= member.duplicates.length - 6 %>
+                                </span>
+                            <% } %>
+                            <% if (member.wanted.length > 0) { %>
+                                <span class="px-2 py-1 rounded text-xs font-semibold text-amber-400 bg-amber-500/20">
+                                    cherche <%= member.wanted.length %>
                                 </span>
                             <% } %>
                         </div>
                     <% } else { %>
-                        <p class="text-sm text-slate-500 italic">Aucune carte enregistrée</p>
+                        <p class="text-sm text-slate-500 italic">Aucune carte enregistree</p>
                     <% } %>
                 </a>
             <% }); %>
         </div>
 
         <div id="noMembers" class="hidden text-center py-12">
-            <div class="text-6xl mb-4">🔍</div>
-            <p class="text-xl text-slate-400">Aucun membre trouvé</p>
+            <p class="text-xl text-slate-400">Aucun membre trouve</p>
         </div>
     </div>
 </div>
@@ -200,7 +210,7 @@
 					if (data.result.members.length > 0) {
 						resultsContainer.innerHTML = `
                         <div class="glass-card rounded-lg p-4">
-                            <p class="text-white font-semibold mb-2">Carte ${data.result.cardNumber} possédée par :</p>
+                            <p class="text-white font-semibold mb-2">Carte ${data.result.cardNumber} possedee par :</p>
                             <div class="flex flex-wrap gap-2">
                                 ${data.result.members.map(m => `
                                     <a href="/member/${m.id}" class="px-3 py-1 bg-sky-500/20 text-sky-300 rounded-lg hover:bg-sky-500/30 transition-colors">
@@ -213,7 +223,7 @@
 					} else {
 						resultsContainer.innerHTML = `
                         <div class="glass-card rounded-lg p-4">
-                            <p class="text-slate-400">Aucun membre ne possède la carte ${query}</p>
+                            <p class="text-slate-400">Aucun membre ne possede la carte ${query}</p>
                         </div>
                     `;
 					}

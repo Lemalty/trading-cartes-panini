@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes cartes - 3SLHB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .bg-mesh {
+            background: linear-gradient(135deg, #0c1e3d 0%, #1e3a5f 50%, #2e5984 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card-strong {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .card-badge {
+            background: linear-gradient(135deg, #87CEEB 0%, #4A90E2 100%);
+        }
+        .card-badge-wanted {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+    </style>
+</head>
+<body class="bg-mesh min-h-screen p-4 md:p-8">
+
+<div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-20 left-10 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sky-400/5 rounded-full blur-3xl"></div>
+</div>
+
+<div class="max-w-5xl mx-auto relative z-10">
+    <%- include('partials/navbar', { currentPage: 'my-cards' }) %>
+
+    <header class="text-center mb-10">
+        <h1 class="text-4xl md:text-5xl font-black bg-gradient-to-r from-sky-200 via-sky-400 to-sky-200 bg-clip-text text-transparent mb-2">
+            Mes cartes
+        </h1>
+        <p class="text-lg text-slate-300">
+            Bienvenue <strong class="text-sky-400"><%= member.displayName %></strong> ! Gere tes cartes en double et celles que tu recherches.
+        </p>
+    </header>
+
+    <div class="grid md:grid-cols-2 gap-8">
+        <!-- Cartes en double -->
+        <div class="glass-card-strong rounded-3xl p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-white mb-2 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+                Mes doubles
+            </h2>
+            <p class="text-sm text-slate-400 mb-4">
+                Les cartes que tu as en double et que tu peux echanger
+            </p>
+
+            <!-- Cartes actuelles -->
+            <div id="currentDuplicates" class="mb-4">
+                <% if (member.duplicates.length > 0) { %>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <% member.duplicates.forEach(function(card) { %>
+                            <span class="card-badge px-3 py-1.5 rounded-lg text-sm font-semibold text-white">
+                                <%= card %>
+                            </span>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <p class="text-slate-500 italic text-sm mb-4">Aucune carte en double pour le moment</p>
+                <% } %>
+            </div>
+
+            <form id="duplicatesForm" class="space-y-4">
+                <div>
+                    <label for="duplicatesInput" class="block text-sm font-semibold text-slate-200 mb-2">
+                        Modifier mes doubles
+                    </label>
+                    <p class="text-xs text-slate-400 mb-2">
+                        Separe les numeros par des virgules. Ex: 1, 5, 23, I2, A4
+                    </p>
+                    <textarea id="duplicatesInput" name="cards" rows="3"
+                              class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all resize-none"
+                              placeholder="1, 5, 23, 42, I2, A4..."><%= member.duplicates.join(', ') %></textarea>
+                </div>
+
+                <!-- Validation -->
+                <div id="dupValidation" class="hidden">
+                    <div id="dupValidCards" class="hidden mb-2">
+                        <p class="text-xs font-semibold text-green-400 mb-1">Cartes valides :</p>
+                        <div id="dupValidList" class="flex flex-wrap gap-1"></div>
+                    </div>
+                    <div id="dupInvalidCards" class="hidden">
+                        <p class="text-xs font-semibold text-red-400 mb-1">Cartes invalides :</p>
+                        <div id="dupInvalidList" class="flex flex-wrap gap-1"></div>
+                    </div>
+                </div>
+
+                <div id="dupError" class="hidden bg-red-500/10 border border-red-500/50 rounded-xl p-3">
+                    <p class="text-red-400 text-sm"></p>
+                </div>
+                <div id="dupSuccess" class="hidden bg-green-500/10 border border-green-500/50 rounded-xl p-3">
+                    <p class="text-green-400 text-sm font-semibold">Doubles mis a jour !</p>
+                </div>
+
+                <button type="submit" id="dupSubmitBtn"
+                        class="w-full bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-lg hover:shadow-sky-500/50 text-sm">
+                    <span id="dupBtnText">Enregistrer mes doubles</span>
+                    <span id="dupBtnLoading" class="hidden">Enregistrement...</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Cartes recherchees -->
+        <div class="glass-card-strong rounded-3xl p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-white mb-2 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                Cartes recherchees
+            </h2>
+            <p class="text-sm text-slate-400 mb-4">
+                Les cartes qu'il te manque et que tu cherches
+            </p>
+
+            <!-- Cartes actuelles -->
+            <div id="currentWanted" class="mb-4">
+                <% if (member.wanted.length > 0) { %>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <% member.wanted.forEach(function(card) { %>
+                            <span class="card-badge-wanted px-3 py-1.5 rounded-lg text-sm font-semibold text-white">
+                                <%= card %>
+                            </span>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <p class="text-slate-500 italic text-sm mb-4">Aucune carte recherchee pour le moment</p>
+                <% } %>
+            </div>
+
+            <form id="wantedForm" class="space-y-4">
+                <div>
+                    <label for="wantedInput" class="block text-sm font-semibold text-slate-200 mb-2">
+                        Modifier mes recherches
+                    </label>
+                    <p class="text-xs text-slate-400 mb-2">
+                        Separe les numeros par des virgules. Ex: 12, 89, B3, K1
+                    </p>
+                    <textarea id="wantedInput" name="cards" rows="3"
+                              class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all resize-none"
+                              placeholder="12, 89, B3, K1..."><%= member.wanted.join(', ') %></textarea>
+                </div>
+
+                <!-- Validation -->
+                <div id="wantValidation" class="hidden">
+                    <div id="wantValidCards" class="hidden mb-2">
+                        <p class="text-xs font-semibold text-green-400 mb-1">Cartes valides :</p>
+                        <div id="wantValidList" class="flex flex-wrap gap-1"></div>
+                    </div>
+                    <div id="wantInvalidCards" class="hidden">
+                        <p class="text-xs font-semibold text-red-400 mb-1">Cartes invalides :</p>
+                        <div id="wantInvalidList" class="flex flex-wrap gap-1"></div>
+                    </div>
+                </div>
+
+                <div id="wantError" class="hidden bg-red-500/10 border border-red-500/50 rounded-xl p-3">
+                    <p class="text-red-400 text-sm"></p>
+                </div>
+                <div id="wantSuccess" class="hidden bg-green-500/10 border border-green-500/50 rounded-xl p-3">
+                    <p class="text-green-400 text-sm font-semibold">Cartes recherchees mises a jour !</p>
+                </div>
+
+                <button type="submit" id="wantSubmitBtn"
+                        class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-lg hover:shadow-amber-500/50 text-sm">
+                    <span id="wantBtnText">Enregistrer mes recherches</span>
+                    <span id="wantBtnLoading" class="hidden">Enregistrement...</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="mt-8 glass-card rounded-2xl p-6">
+        <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-sky-400 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <p class="text-white font-semibold mb-1">Comment ca marche ?</p>
+                <ul class="text-slate-300 text-sm space-y-1">
+                    <li>Les <strong class="text-sky-400">doubles</strong> sont les cartes que tu as en plusieurs exemplaires et que tu peux echanger.</li>
+                    <li>Les <strong class="text-amber-400">cartes recherchees</strong> sont celles qui te manquent dans ton album.</li>
+                    <li>Les autres membres du club pourront voir tes listes et te contacter pour echanger !</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Validation en temps reel pour les deux formulaires
+    function setupCardForm(config) {
+        const { input, validationDiv, validCards, invalidCards, validList, invalidList,
+                form, submitBtn, btnText, btnLoading, errorDiv, successDiv, apiUrl } = config;
+
+        let validationTimeout;
+
+        input.addEventListener('input', function() {
+            const value = input.value.trim();
+            if (value === '') {
+                validationDiv.classList.add('hidden');
+                return;
+            }
+
+            clearTimeout(validationTimeout);
+            validationTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch('/api/cards/validate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ cards: value })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const { valid, invalid } = data.validation;
+
+                        if (valid.length > 0) {
+                            validList.innerHTML = valid.map(card =>
+                                `<span class="px-2 py-0.5 bg-green-500/20 text-green-300 rounded text-xs font-semibold">${card}</span>`
+                            ).join('');
+                            validCards.classList.remove('hidden');
+                        } else {
+                            validCards.classList.add('hidden');
+                        }
+
+                        if (invalid.length > 0) {
+                            invalidList.innerHTML = invalid.map(card =>
+                                `<span class="px-2 py-0.5 bg-red-500/20 text-red-300 rounded text-xs font-semibold">${card}</span>`
+                            ).join('');
+                            invalidCards.classList.remove('hidden');
+                        } else {
+                            invalidCards.classList.add('hidden');
+                        }
+
+                        validationDiv.classList.remove('hidden');
+                    }
+                } catch (error) {
+                    console.error('Validation error:', error);
+                }
+            }, 500);
+        });
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            errorDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+            submitBtn.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoading.classList.remove('hidden');
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cards: input.value })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    successDiv.classList.remove('hidden');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    errorDiv.querySelector('p').textContent = data.error || 'Une erreur est survenue';
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Submit error:', error);
+                errorDiv.querySelector('p').textContent = 'Erreur de connexion au serveur';
+                errorDiv.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoading.classList.add('hidden');
+            }
+        });
+    }
+
+    // Setup pour les doubles
+    setupCardForm({
+        input: document.getElementById('duplicatesInput'),
+        validationDiv: document.getElementById('dupValidation'),
+        validCards: document.getElementById('dupValidCards'),
+        invalidCards: document.getElementById('dupInvalidCards'),
+        validList: document.getElementById('dupValidList'),
+        invalidList: document.getElementById('dupInvalidList'),
+        form: document.getElementById('duplicatesForm'),
+        submitBtn: document.getElementById('dupSubmitBtn'),
+        btnText: document.getElementById('dupBtnText'),
+        btnLoading: document.getElementById('dupBtnLoading'),
+        errorDiv: document.getElementById('dupError'),
+        successDiv: document.getElementById('dupSuccess'),
+        apiUrl: '/api/my-cards/duplicates'
+    });
+
+    // Setup pour les recherchees
+    setupCardForm({
+        input: document.getElementById('wantedInput'),
+        validationDiv: document.getElementById('wantValidation'),
+        validCards: document.getElementById('wantValidCards'),
+        invalidCards: document.getElementById('wantInvalidCards'),
+        validList: document.getElementById('wantValidList'),
+        invalidList: document.getElementById('wantInvalidList'),
+        form: document.getElementById('wantedForm'),
+        submitBtn: document.getElementById('wantSubmitBtn'),
+        btnText: document.getElementById('wantBtnText'),
+        btnLoading: document.getElementById('wantBtnLoading'),
+        errorDiv: document.getElementById('wantError'),
+        successDiv: document.getElementById('wantSuccess'),
+        apiUrl: '/api/my-cards/wanted'
+    });
+</script>
+
+</body>
+</html>

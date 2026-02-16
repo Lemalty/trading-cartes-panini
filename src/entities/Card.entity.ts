@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Duplicate } from './Duplicate.entity.js';
+import { Wanted } from './Wanted.entity.js';
 
 @Entity('cards')
 export class Card {
@@ -20,4 +21,7 @@ export class Card {
 
     @OneToMany(() => Duplicate, duplicate => duplicate.card)
     duplicates!: Duplicate[];
+
+    @OneToMany(() => Wanted, wanted => wanted.card)
+    wanted!: Wanted[];
 }

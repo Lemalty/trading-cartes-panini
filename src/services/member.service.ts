@@ -3,17 +3,20 @@ import { Repository } from 'typeorm';
 import { CardService } from './card.service.js';
 import {MemberWithDuplicates} from "cards.type.js";
 import {Duplicate} from "../entities/Duplicate.entity.js";
+import {Wanted} from "../entities/Wanted.entity.js";
 import {Member} from "../entities/Member.entity.js";
 
 export class MemberService {
     private memberRepository: Repository<Member>;
     private duplicateRepository: Repository<Duplicate>;
+    private wantedRepository: Repository<Wanted>;
     private cardService: CardService;
 
     constructor() {
         const dataSource = getDataSource();
         this.memberRepository = dataSource.getRepository(Member);
         this.duplicateRepository = dataSource.getRepository(Duplicate);
+        this.wantedRepository = dataSource.getRepository(Wanted);
         this.cardService = new CardService();
     }
 
@@ -54,7 +57,6 @@ export class MemberService {
         const cards = await this.cardService.getOrCreateCards(cardNumbers);
 
         for (const card of cards) {
-            // Vérifier si le duplicate existe déjà
             const existingDuplicate = await this.duplicateRepository.findOne({
                 where: {
                     member: { id: memberId },
@@ -93,12 +95,79 @@ export class MemberService {
     }
 
     /**
-     * Récupère un membre avec ses cartes en double
+     * Remplace toutes les cartes en double d'un membre
+     */
+    async replaceDuplicates(memberId: number, cardNumbers: string[]): Promise<void> {
+        await this.duplicateRepository
+            .createQueryBuilder()
+            .delete()
+            .from(Duplicate)
+            .where('memberId = :memberId', { memberId })
+            .execute();
+
+        if (cardNumbers.length > 0) {
+            await this.addDuplicatesToMember(memberId, cardNumbers);
+        }
+    }
+
+    /**
+     * Ajoute des cartes recherchées à un membre
+     */
+    async addWantedToMember(
+        memberId: number,
+        cardNumbers: string[]
+    ): Promise<void> {
+        const member = await this.memberRepository.findOne({
+            where: { id: memberId }
+        });
+
+        if (!member) {
+            throw new Error('Member not found');
+        }
+
+        const cards = await this.cardService.getOrCreateCards(cardNumbers);
+
+        for (const card of cards) {
+            const existingWanted = await this.wantedRepository.findOne({
+                where: {
+                    member: { id: memberId },
+                    card: { id: card.id }
+                }
+            });
+
+            if (!existingWanted) {
+                const wanted = this.wantedRepository.create({
+                    member,
+                    card
+                });
+                await this.wantedRepository.save(wanted);
+            }
+        }
+    }
+
+    /**
+     * Remplace toutes les cartes recherchées d'un membre
+     */
+    async replaceWanted(memberId: number, cardNumbers: string[]): Promise<void> {
+        await this.wantedRepository
+            .createQueryBuilder()
+            .delete()
+            .from(Wanted)
+            .where('memberId = :memberId', { memberId })
+            .execute();
+
+        if (cardNumbers.length > 0) {
+            await this.addWantedToMember(memberId, cardNumbers);
+        }
+    }
+
+    /**
+     * Récupère un membre avec ses cartes en double et recherchées
      */
     async getMemberWithDuplicates(memberId: number): Promise<MemberWithDuplicates | null> {
         const member = await this.memberRepository.findOne({
             where: { id: memberId },
-            relations: ['duplicates', 'duplicates.card']
+            relations: ['duplicates', 'duplicates.card', 'wanted', 'wanted.card']
         });
 
         if (!member) {
@@ -111,16 +180,19 @@ export class MemberService {
             duplicates: member.duplicates
                 .map((d: { card: { cardNumber: any; }; }) => d.card.cardNumber)
                 .sort((a: string, b: string) => this.sortCardNumbers(a, b)),
+            wanted: (member.wanted || [])
+                .map((w: { card: { cardNumber: any; }; }) => w.card.cardNumber)
+                .sort((a: string, b: string) => this.sortCardNumbers(a, b)),
             createdAt: member.createdAt
         };
     }
 
     /**
-     * Récupère tous les membres avec leurs cartes en double
+     * Récupère tous les membres avec leurs cartes en double et recherchées
      */
     async getAllMembersWithDuplicates(): Promise<MemberWithDuplicates[]> {
         const members = await this.memberRepository.find({
-            relations: ['duplicates', 'duplicates.card'],
+            relations: ['duplicates', 'duplicates.card', 'wanted', 'wanted.card'],
             order: {
                 displayName: 'ASC'
             }
@@ -131,6 +203,9 @@ export class MemberService {
             displayName: member.displayName,
             duplicates: member.duplicates
                 .map((d: { card: { cardNumber: any; }; }) => d.card.cardNumber)
+                .sort((a: string, b: string) => this.sortCardNumbers(a, b)),
+            wanted: (member.wanted || [])
+                .map((w: { card: { cardNumber: any; }; }) => w.card.cardNumber)
                 .sort((a: string, b: string) => this.sortCardNumbers(a, b)),
             createdAt: member.createdAt
         }));
@@ -144,6 +219,8 @@ export class MemberService {
             .createQueryBuilder('member')
             .leftJoinAndSelect('member.duplicates', 'duplicate')
             .leftJoinAndSelect('duplicate.card', 'card')
+            .leftJoinAndSelect('member.wanted', 'wanted')
+            .leftJoinAndSelect('wanted.card', 'wantedCard')
             .where('LOWER(member.displayName) LIKE :query', {
                 query: `%${query.toLowerCase()}%`
             })
@@ -155,6 +232,9 @@ export class MemberService {
             displayName: member.displayName,
             duplicates: member.duplicates
                 .map(d => d.card.cardNumber)
+                .sort((a, b) => this.sortCardNumbers(a, b)),
+            wanted: (member.wanted || [])
+                .map(w => w.card.cardNumber)
                 .sort((a, b) => this.sortCardNumbers(a, b)),
             createdAt: member.createdAt
         }));

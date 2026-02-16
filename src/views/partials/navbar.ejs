@@ -2,18 +2,33 @@
     <div class="flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-6">
             <a href="/" class="text-xl font-bold <%= currentPage === 'home' ? 'text-sky-400' : 'text-white hover:text-sky-300' %> transition-colors">
-                🃏 Echange Cartes 3SLHB
+                Echange Cartes 3SLHB
             </a>
         </div>
         <div class="flex items-center gap-3">
-            <a href="/" class="px-4 py-2 <%= currentPage === 'home' ? 'bg-sky-500/20 text-sky-400' : 'text-slate-300 hover:text-white' %> rounded-lg transition-all">
+            <a href="/" class="px-4 py-2 <%= currentPage === 'home' ? 'bg-sky-500/20 text-sky-400' : 'text-slate-300 hover:text-white' %> rounded-lg transition-all text-sm">
                 Accueil
             </a>
-            <a href="/member/add" class="px-4 py-2 <%= currentPage === 'add' ? 'bg-sky-500/20 text-sky-400' : 'text-slate-300 hover:text-white' %> rounded-lg transition-all">
-                Ajouter mes doubles
-            </a>
-            <a href="/admin" class="px-4 py-2 text-slate-300 hover:text-white rounded-lg transition-all">
-                ⚙️ Admin
+            <% if (typeof memberName !== 'undefined' && memberName) { %>
+                <a href="/my-cards" class="px-4 py-2 <%= currentPage === 'my-cards' ? 'bg-sky-500/20 text-sky-400' : 'text-slate-300 hover:text-white' %> rounded-lg transition-all text-sm">
+                    Mes cartes
+                </a>
+                <div class="flex items-center gap-2 ml-2">
+                    <span class="text-sky-400 text-sm font-semibold"><%= memberName %></span>
+                    <a href="/logout" class="px-3 py-1.5 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-lg transition-all text-sm">
+                        Deconnexion
+                    </a>
+                </div>
+            <% } else { %>
+                <a href="/member/add" class="px-4 py-2 <%= currentPage === 'add' ? 'bg-sky-500/20 text-sky-400' : 'text-slate-300 hover:text-white' %> rounded-lg transition-all text-sm">
+                    Ajouter mes doubles
+                </a>
+                <a href="/login" class="px-4 py-2 bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-semibold rounded-lg transition-all shadow-lg hover:shadow-sky-500/30 text-sm">
+                    Connexion
+                </a>
+            <% } %>
+            <a href="/admin" class="px-3 py-2 text-slate-400 hover:text-white rounded-lg transition-all text-sm">
+                Admin
             </a>
         </div>
     </div>
