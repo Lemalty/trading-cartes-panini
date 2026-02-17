@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - 3SLHB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .bg-mesh {
+            background: linear-gradient(135deg, #0c1e3d 0%, #1e3a5f 50%, #2e5984 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        .glass-card-strong {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-mesh min-h-screen flex items-center justify-center p-4">
+
+<div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-20 left-10 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+</div>
+
+<div class="max-w-md w-full relative z-10">
+    <div class="text-center mb-6 sm:mb-8">
+        <div class="text-4xl sm:text-5xl mb-3 sm:mb-4">🃏</div>
+        <h1 class="text-3xl sm:text-4xl font-black bg-gradient-to-r from-sky-200 via-sky-400 to-sky-200 bg-clip-text text-transparent mb-2">
+            Inscription
+        </h1>
+        <p class="text-slate-300 text-sm sm:text-base">Rejoins le trading de cartes 3SLHB</p>
+    </div>
+
+    <div class="glass-card-strong rounded-2xl sm:rounded-3xl p-6 sm:p-8">
+        <form method="POST" action="/register" class="space-y-6">
+            <div>
+                <label for="displayName" class="block text-sm font-semibold text-slate-200 mb-2">
+                    Ton nom, prenom ou surnom *
+                </label>
+                <input type="text" id="displayName" name="displayName" required minlength="2" maxlength="100"
+                       class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                       placeholder="Ex: Jean Dupont, JD, Jean...">
+                <p class="text-xs text-slate-400 mt-1">C'est le nom que verront les autres membres</p>
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-semibold text-slate-200 mb-2">
+                    Mot de passe *
+                </label>
+                <input type="password" id="password" name="password" required minlength="4"
+                       class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                       placeholder="Au moins 4 caracteres">
+            </div>
+
+            <div>
+                <label for="passwordConfirm" class="block text-sm font-semibold text-slate-200 mb-2">
+                    Confirmer le mot de passe *
+                </label>
+                <input type="password" id="passwordConfirm" name="passwordConfirm" required minlength="4"
+                       class="w-full bg-white/10 text-white placeholder-slate-400 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                       placeholder="Retape ton mot de passe">
+            </div>
+
+            <% if (error) { %>
+                <div class="bg-red-500/10 border border-red-500/50 rounded-xl p-4">
+                    <p class="text-red-400 text-sm">
+                        <%= error %>
+                    </p>
+                </div>
+            <% } %>
+
+            <button type="submit"
+                    class="w-full bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg hover:shadow-sky-500/50">
+                Creer mon compte
+            </button>
+
+            <div class="text-center space-y-2">
+                <p class="text-slate-400 text-sm">
+                    Deja un compte ?
+                    <a href="/login" class="text-sky-400 hover:text-sky-300 font-semibold transition-colors">
+                        Se connecter
+                    </a>
+                </p>
+                <a href="/" class="text-sky-400 hover:text-sky-300 text-sm transition-colors block">
+                    Retour a l'accueil
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -18,10 +18,10 @@
     "ejs": "latest",
     "express": "^4.19.2",
     "express-session": "^1.18.2",
-    "sqlite3": "latest",
+    "sqlite3": "^5.0.2",
     "swagger-jsdoc": "^6.2.0",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "latest",
+    "typeorm": "^0.3.6",
     "winston": "^3.13.1"
   },
   "devDependencies": {

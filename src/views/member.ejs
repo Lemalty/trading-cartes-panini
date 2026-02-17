@@ -30,9 +30,12 @@
         .card-badge {
             background: linear-gradient(135deg, #87CEEB 0%, #4A90E2 100%);
         }
+        .card-badge-wanted {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
     </style>
 </head>
-<body class="bg-mesh min-h-screen p-4 md:p-8">
+<body class="bg-mesh min-h-screen p-3 sm:p-4 md:p-8">
 
 <div class="fixed inset-0 overflow-hidden pointer-events-none">
     <div class="absolute top-20 left-10 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl"></div>
@@ -42,63 +45,86 @@
 <div class="max-w-5xl mx-auto relative z-10">
     <%- include('partials/navbar', { currentPage: 'member' }) %>
 
-    <div class="glass-card-strong rounded-3xl p-8 md:p-12">
-        <!-- En-tête -->
-        <div class="text-center mb-8">
-            <a href="/" class="inline-flex items-center text-sky-400 hover:text-sky-300 mb-4 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="glass-card-strong rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12">
+        <!-- En-tete -->
+        <div class="text-center mb-6 sm:mb-8">
+            <a href="/" class="inline-flex items-center text-sky-400 hover:text-sky-300 mb-3 sm:mb-4 transition-colors text-sm">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
-                Retour à la liste
+                Retour a la liste
             </a>
 
-            <h1 class="text-4xl md:text-5xl font-black bg-gradient-to-r from-sky-200 via-sky-400 to-sky-200 bg-clip-text text-transparent mb-2">
+            <h1 class="text-2xl sm:text-4xl md:text-5xl font-black bg-gradient-to-r from-sky-200 via-sky-400 to-sky-200 bg-clip-text text-transparent mb-2">
                 <%= member.displayName %>
             </h1>
 
-            <p class="text-slate-300 text-lg">
+            <p class="text-slate-300 text-sm sm:text-lg">
                 <%= member.duplicates.length %> carte<%= member.duplicates.length > 1 ? 's' : '' %> en double
+                <% if (member.wanted.length > 0) { %>
+                    &middot; <%= member.wanted.length %> carte<%= member.wanted.length > 1 ? 's' : '' %> recherchee<%= member.wanted.length > 1 ? 's' : '' %>
+                <% } %>
             </p>
         </div>
 
         <!-- Cartes en double -->
         <% if (member.duplicates.length > 0) { %>
-            <div class="glass-card rounded-2xl p-6">
-                <h2 class="text-xl font-bold text-white mb-4 flex items-center">
-                    <svg class="w-6 h-6 mr-2 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6">
+                <h2 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 flex items-center">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-sky-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
                     </svg>
-                    Cartes disponibles
+                    Cartes disponibles a l'echange
                 </h2>
 
-                <div class="flex flex-wrap gap-3">
+                <div class="flex flex-wrap gap-2 sm:gap-3">
                     <% member.duplicates.forEach(function(card) { %>
-                        <div class="card-badge px-4 py-2 rounded-lg text-white font-semibold shadow-lg">
+                        <div class="card-badge px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white text-sm sm:text-base font-semibold shadow-lg">
                             <%= card %>
                         </div>
                     <% }); %>
                 </div>
             </div>
+        <% } %>
 
-            <!-- Info contact -->
-            <div class="mt-6 glass-card rounded-2xl p-6">
+        <!-- Cartes recherchees -->
+        <% if (member.wanted.length > 0) { %>
+            <div class="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6">
+                <h2 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 flex items-center">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    Cartes recherchees
+                </h2>
+
+                <div class="flex flex-wrap gap-2 sm:gap-3">
+                    <% member.wanted.forEach(function(card) { %>
+                        <div class="card-badge-wanted px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white text-sm sm:text-base font-semibold shadow-lg">
+                            <%= card %>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        <% } %>
+
+        <% if (member.duplicates.length > 0 || member.wanted.length > 0) { %>
+            <div class="glass-card rounded-xl sm:rounded-2xl p-4 sm:p-6">
                 <div class="flex items-start gap-3">
-                    <svg class="w-6 h-6 text-sky-400 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-sky-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <div>
-                        <p class="text-white font-semibold mb-1">Comment échanger ?</p>
-                        <p class="text-slate-300 text-sm">
-                            Contacte <strong><%= member.displayName %></strong> directement au club pour échanger vos cartes !
+                        <p class="text-white font-semibold mb-1 text-sm sm:text-base">Comment echanger ?</p>
+                        <p class="text-slate-300 text-xs sm:text-sm">
+                            Contacte <strong><%= member.displayName %></strong> directement au club pour echanger vos cartes !
                         </p>
                     </div>
                 </div>
             </div>
         <% } else { %>
-            <div class="text-center py-12">
-                <div class="text-6xl mb-4">🃏</div>
-                <p class="text-xl text-slate-400">
-                    <%= member.displayName %> n'a pas encore ajouté de cartes en double
+            <div class="text-center py-8 sm:py-12">
+                <p class="text-lg sm:text-xl text-slate-400">
+                    <%= member.displayName %> n'a pas encore ajoute de cartes
                 </p>
             </div>
         <% } %>

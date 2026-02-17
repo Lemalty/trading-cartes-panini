@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Duplicate } from './Duplicate.entity.js';
+import { Wanted } from './Wanted.entity.js';
 
 @Entity('members')
 export class Member {
@@ -9,6 +10,9 @@ export class Member {
     @Column({ type: 'varchar', length: 100 })
     displayName!: string;
 
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    passwordHash!: string | null;
+
     @CreateDateColumn()
     createdAt!: Date;
 
@@ -17,4 +21,7 @@ export class Member {
 
     @OneToMany(() => Duplicate, duplicate => duplicate.member, { cascade: true })
     duplicates!: Duplicate[];
+
+    @OneToMany(() => Wanted, wanted => wanted.member, { cascade: true })
+    wanted!: Wanted[];
 }
