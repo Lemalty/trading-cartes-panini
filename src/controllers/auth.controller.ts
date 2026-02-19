@@ -83,7 +83,7 @@ export class AuthController {
      */
     async register(req: Request, res: Response): Promise<void> {
         try {
-            const { displayName, password, passwordConfirm } = req.body;
+            const { displayName, password, passwordConfirm, team } = req.body;
 
             if (!displayName || !password) {
                 return res.render('auth/register', {
@@ -121,7 +121,7 @@ export class AuthController {
                 });
             }
 
-            const member = await this.authService.register(displayName, password);
+            const member = await this.authService.register(displayName, password, team);
 
             req.session.memberId = member.id;
             req.session.memberName = member.displayName;

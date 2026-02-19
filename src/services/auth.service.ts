@@ -15,12 +15,13 @@ export class AuthService {
     /**
      * Inscrit un nouveau membre avec un mot de passe
      */
-    async register(displayName: string, password: string): Promise<Member> {
+    async register(displayName: string, password: string, team?: string): Promise<Member> {
         const passwordHash = await bcrypt.hash(password, this.saltRounds);
 
         const member = this.memberRepository.create({
             displayName: displayName.trim(),
-            passwordHash
+            passwordHash,
+            team: team ? team.trim() : null
         });
 
         return await this.memberRepository.save(member);
