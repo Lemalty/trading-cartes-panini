@@ -207,6 +207,42 @@
             </div>
         </div>
     </div>
+
+    <!-- Interets recus sur mes doubles -->
+    <div class="mt-4 sm:mt-8 glass-card-strong rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
+        <h2 class="text-xl sm:text-2xl font-bold text-white mb-2 flex items-center">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+            Interets recus sur mes doubles
+        </h2>
+        <p class="text-sm text-slate-400 mb-4">
+            Les membres interesses par tes cartes en double
+        </p>
+
+        <% if (interestsOnMyDuplicates.length === 0) { %>
+            <p class="text-slate-500 italic text-sm">Aucun membre n'a encore exprime d'interet pour tes doubles.</p>
+        <% } else { %>
+            <div class="space-y-2">
+                <% interestsOnMyDuplicates.forEach(function(interest) { %>
+                    <div class="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-3">
+                        <div class="card-badge px-3 py-1 rounded-lg text-white text-sm font-bold flex-shrink-0">
+                            <%= interest.cardNumber %>
+                        </div>
+                        <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                        <span class="text-white text-sm font-semibold">
+                            <a href="/member/<%= interest.interestedMember.id %>" class="hover:text-sky-400 transition-colors">
+                                <%= interest.interestedMember.displayName %>
+                            </a>
+                        </span>
+                        <span class="text-slate-400 text-xs">est interesse(e) par ta carte</span>
+                    </div>
+                <% }); %>
+            </div>
+        <% } %>
+    </div>
 </div>
 
 <script>

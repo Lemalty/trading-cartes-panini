@@ -46,6 +46,7 @@ try {
 const adminRoutes = (await import("./routes/admin.routes.js")).default;
 const cardsRoutes = (await import("./routes/cards.routes.js")).default;
 const authRoutes = (await import("./routes/auth.routes.js")).default;
+const interestRoutes = (await import("./routes/interest.routes.js")).default;
 
 const app = express();
 
@@ -92,6 +93,7 @@ if (['dev', 'test', 'docker'].includes(process.env.NODE_ENV || '')) {
 app.use('/', authRoutes);
 app.use('/', cardsRoutes);
 app.use('/', adminRoutes);
+app.use('/', interestRoutes);
 
 // Error handling
 app.use((req, res) => {

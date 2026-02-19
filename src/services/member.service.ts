@@ -1,10 +1,11 @@
 import { getDataSource } from '../config/Database.js';
 import { Repository } from 'typeorm';
 import { CardService } from './card.service.js';
-import {MemberWithDuplicates} from "cards.type.js";
-import {Duplicate} from "../entities/Duplicate.entity.js";
-import {Wanted} from "../entities/Wanted.entity.js";
-import {Member} from "../entities/Member.entity.js";
+import { MemberWithDuplicates, MemberPageData, DuplicateWithInterest } from "cards.type.js";
+import { Duplicate } from "../entities/Duplicate.entity.js";
+import { Wanted } from "../entities/Wanted.entity.js";
+import { Member } from "../entities/Member.entity.js";
+import { InterestService } from './interest.service.js';
 
 export class MemberService {
     private memberRepository: Repository<Member>;
@@ -184,6 +185,49 @@ export class MemberService {
                 .map((w: { card: { cardNumber: any; }; }) => w.card.cardNumber)
                 .sort((a: string, b: string) => this.sortCardNumbers(a, b)),
             createdAt: member.createdAt
+        };
+    }
+
+    /**
+     * Récupère les données d'un membre pour la page de profil publique,
+     * avec les informations d'intérêt pour l'utilisateur connecté.
+     */
+    async getMemberPageData(memberId: number, viewingMemberId?: number): Promise<MemberPageData | null> {
+        const member = await this.memberRepository.findOne({
+            where: { id: memberId },
+            relations: ['duplicates', 'duplicates.card', 'wanted', 'wanted.card']
+        });
+
+        if (!member) {
+            return null;
+        }
+
+        let interestedDuplicateIds = new Set<number>();
+        if (viewingMemberId && viewingMemberId !== memberId) {
+            const interestService = new InterestService();
+            interestedDuplicateIds = await interestService.getInterestedDuplicateIds(viewingMemberId);
+        }
+
+        const duplicates: DuplicateWithInterest[] = member.duplicates
+            .map(d => ({
+                duplicateId: d.id,
+                cardNumber: d.card.cardNumber,
+                isInterestedByCurrentUser: interestedDuplicateIds.has(d.id)
+            }))
+            .sort((a, b) => this.sortCardNumbers(a.cardNumber, b.cardNumber));
+
+        const wanted = (member.wanted || [])
+            .map(w => w.card.cardNumber)
+            .sort((a, b) => this.sortCardNumbers(a, b));
+
+        return {
+            id: member.id,
+            displayName: member.displayName,
+            duplicates,
+            wanted,
+            createdAt: member.createdAt,
+            isOwnProfile: viewingMemberId === memberId,
+            isLoggedIn: viewingMemberId !== undefined
         };
     }
 
