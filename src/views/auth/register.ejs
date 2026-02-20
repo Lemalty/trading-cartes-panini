@@ -24,13 +24,14 @@
         }
     </style>
 </head>
-<body class="bg-mesh min-h-screen flex items-center justify-center p-4">
+<body class="bg-mesh min-h-screen flex flex-col p-4">
 
 <div class="fixed inset-0 overflow-hidden pointer-events-none">
     <div class="absolute top-20 left-10 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl"></div>
     <div class="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
 </div>
 
+<div class="flex-1 flex items-center justify-center">
 <div class="max-w-md w-full relative z-10">
     <div class="text-center mb-6 sm:mb-8">
         <div class="text-4xl sm:text-5xl mb-3 sm:mb-4">🃏</div>
@@ -97,6 +98,9 @@
         </form>
     </div>
 </div>
+</div>
+
+<%- include('../partials/footer') %>
 
 </body>
 </html>
