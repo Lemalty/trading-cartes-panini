@@ -2,14 +2,17 @@ import { getDataSource } from '../config/Database.js';
 import { Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
 import {AdminConfig} from "../entities/AdminConfig.entity.js";
+import { Member } from '../entities/Member.entity.js';
 
 export class AdminService {
     private adminConfigRepository: Repository<AdminConfig>;
+    private memberRepository: Repository<Member>;
     private readonly saltRounds = 10;
 
     constructor() {
         const dataSource = getDataSource();
         this.adminConfigRepository = dataSource.getRepository(AdminConfig);
+        this.memberRepository = dataSource.getRepository(Member);
     }
 
     /**
@@ -54,6 +57,16 @@ export class AdminService {
         }
 
         return await bcrypt.compare(password, adminConfig.passwordHash);
+    }
+
+    /**
+     * Récupère la liste de tous les membres
+     */
+    async getMembers(): Promise<{ id: number; displayName: string; team: string | null; createdAt: Date }[]> {
+        return this.memberRepository.find({
+            select: ['id', 'displayName', 'team', 'createdAt'],
+            order: { createdAt: 'DESC' }
+        });
     }
 
     /**

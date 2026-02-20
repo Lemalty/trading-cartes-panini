@@ -132,6 +132,48 @@
         </form>
     </div>
 
+    <!-- Membres inscrits -->
+    <div class="glass-card-strong rounded-3xl p-8 mb-8">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center justify-between">
+            <span class="flex items-center">
+                <svg class="w-7 h-7 mr-3 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                Membres inscrits
+            </span>
+            <span class="bg-sky-500/20 text-sky-400 text-xl font-bold px-4 py-1 rounded-full border border-sky-500/30">
+                <%= memberCount %>
+            </span>
+        </h2>
+
+        <% if (members.length === 0) { %>
+            <p class="text-slate-400 text-sm text-center py-4">Aucun membre inscrit pour le moment.</p>
+        <% } else { %>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-white/10">
+                            <th class="text-left text-slate-400 font-semibold pb-3 pr-4">#</th>
+                            <th class="text-left text-slate-400 font-semibold pb-3 pr-4">Nom</th>
+                            <th class="text-left text-slate-400 font-semibold pb-3 pr-4">Équipe</th>
+                            <th class="text-left text-slate-400 font-semibold pb-3">Inscrit le</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        <% members.forEach(function(member, index) { %>
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="py-3 pr-4 text-slate-500"><%= index + 1 %></td>
+                                <td class="py-3 pr-4 text-white font-medium"><%= member.displayName %></td>
+                                <td class="py-3 pr-4 text-slate-300"><%= member.team || '<span class="text-slate-500 italic">—</span>' %></td>
+                                <td class="py-3 text-slate-400"><%= new Date(member.createdAt).toLocaleDateString('fr-FR') %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } %>
+    </div>
+
     <!-- Informations -->
     <div class="glass-card rounded-2xl p-6">
         <h3 class="text-lg font-semibold text-white mb-3 flex items-center">
