@@ -177,6 +177,7 @@ export class MemberService {
         return {
             id: member.id,
             displayName: member.displayName,
+            team: member.team ?? null,
             duplicates: member.duplicates
                 .map((d: { card: { cardNumber: any; }; }) => d.card.cardNumber)
                 .sort((a: string, b: string) => this.sortCardNumbers(a, b)),
@@ -201,6 +202,7 @@ export class MemberService {
         return members.map(member => ({
             id: member.id,
             displayName: member.displayName,
+            team: member.team ?? null,
             duplicates: member.duplicates
                 .map((d: { card: { cardNumber: any; }; }) => d.card.cardNumber)
                 .sort((a: string, b: string) => this.sortCardNumbers(a, b)),
@@ -230,6 +232,7 @@ export class MemberService {
         return members.map(member => ({
             id: member.id,
             displayName: member.displayName,
+            team: member.team ?? null,
             duplicates: member.duplicates
                 .map(d => d.card.cardNumber)
                 .sort((a, b) => this.sortCardNumbers(a, b)),
@@ -245,6 +248,13 @@ export class MemberService {
      */
     async getMemberCount(): Promise<number> {
         return await this.memberRepository.count();
+    }
+
+    /**
+     * Met à jour l'équipe d'un membre
+     */
+    async updateTeam(memberId: number, team: string | null): Promise<void> {
+        await this.memberRepository.update(memberId, { team: team ? team.trim() : null });
     }
 
     /**
