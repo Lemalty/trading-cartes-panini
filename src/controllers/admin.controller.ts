@@ -75,10 +75,15 @@ export class AdminController {
      */
     async getAdminPage(req: Request, res: Response): Promise<void> {
         try {
-            const albumConfig = await this.cardService.getAlbumConfig();
+            const [albumConfig, members] = await Promise.all([
+                this.cardService.getAlbumConfig(),
+                this.adminService.getMembers()
+            ]);
 
             res.render('admin/config', {
                 albumConfig,
+                members,
+                memberCount: members.length,
                 currentPage: 'admin',
                 success: req.query.success === 'true'
             });
