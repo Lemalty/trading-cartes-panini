@@ -164,7 +164,13 @@
                             <tr class="hover:bg-white/5 transition-colors">
                                 <td class="py-3 pr-4 text-slate-500"><%= index + 1 %></td>
                                 <td class="py-3 pr-4 text-white font-medium"><%= member.displayName %></td>
-                                <td class="py-3 pr-4 text-slate-300"><%= member.team || '<span class="text-slate-500 italic">—</span>' %></td>
+                                <td class="py-3 pr-4 text-slate-300">
+                                    <% if (member.team) { %>
+                                        <%= member.team %>
+                                    <% } else { %>
+                                        <span class="text-slate-500 italic">—</span>
+                                    <% } %>
+                                </td>
                                 <td class="py-3 text-slate-400"><%= new Date(member.createdAt).toLocaleDateString('fr-FR') %></td>
                             </tr>
                         <% }); %>
