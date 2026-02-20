@@ -86,7 +86,7 @@ export class AuthController {
      */
     async register(req: Request, res: Response): Promise<void> {
         try {
-            const { displayName, password, passwordConfirm } = req.body;
+            const { displayName, password, passwordConfirm, team } = req.body;
 
             if (!displayName || !password) {
                 return res.render('auth/register', {
@@ -124,7 +124,7 @@ export class AuthController {
                 });
             }
 
-            const member = await this.authService.register(displayName, password);
+            const member = await this.authService.register(displayName, password, team);
 
             req.session.memberId = member.id;
             req.session.memberName = member.displayName;
@@ -176,6 +176,27 @@ export class AuthController {
             res.status(500).render('error', {
                 message: 'Erreur lors du chargement de vos cartes'
             });
+        }
+    }
+
+    /**
+     * API - Mise à jour de l'équipe
+     */
+    async updateTeam(req: Request, res: Response): Promise<void> {
+        try {
+            const memberId = req.session.memberId!;
+            const { team } = req.body;
+
+            if (team !== undefined && typeof team === 'string' && team.trim().length > 100) {
+                res.status(400).json({ success: false, error: 'Le nom de l\'équipe est trop long (100 caractères max)' });
+                return;
+            }
+
+            await this.memberService.updateTeam(memberId, team || null);
+            res.json({ success: true });
+        } catch (error) {
+            logger.error('Error updating team:', error);
+            res.status(500).json({ success: false, error: 'Erreur lors de la mise à jour de l\'équipe' });
         }
     }
 

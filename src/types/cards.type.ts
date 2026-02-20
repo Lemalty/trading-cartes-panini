@@ -11,6 +11,7 @@ export interface ParsedCard {
 export interface MemberWithDuplicates {
     id: number;
     displayName: string;
+    team: string | null;
     duplicates: string[];
     wanted: string[];
     createdAt: Date;
