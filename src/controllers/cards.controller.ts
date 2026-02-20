@@ -137,7 +137,8 @@ export class CardsController {
                 });
             }
 
-            const member = await this.memberService.getMemberWithDuplicates(memberId);
+            const viewingMemberId: number | undefined = req.session.memberId;
+            const member = await this.memberService.getMemberPageData(memberId, viewingMemberId);
 
             if (!member) {
                 return res.status(404).render('error', {

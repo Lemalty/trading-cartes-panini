@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service.js';
 import { MemberService } from '../services/member.service.js';
 import { CardService } from '../services/card.service.js';
+import { InterestService } from '../services/interest.service.js';
 import { createAppChildLogger } from '../utils/Logger.js';
 
 const logger = createAppChildLogger('AuthController');
@@ -10,11 +11,13 @@ export class AuthController {
     private authService: AuthService;
     private memberService: MemberService;
     private cardService: CardService;
+    private interestService: InterestService;
 
     constructor() {
         this.authService = new AuthService();
         this.memberService = new MemberService();
         this.cardService = new CardService();
+        this.interestService = new InterestService();
     }
 
     /**
@@ -153,7 +156,10 @@ export class AuthController {
     async getMyCardsPage(req: Request, res: Response): Promise<void> {
         try {
             const memberId = req.session.memberId!;
-            const member = await this.memberService.getMemberWithDuplicates(memberId);
+            const [member, interestsOnMyDuplicates] = await Promise.all([
+                this.memberService.getMemberWithDuplicates(memberId),
+                this.interestService.getInterestsOnMyDuplicates(memberId)
+            ]);
 
             if (!member) {
                 req.session.destroy(() => {});
@@ -162,6 +168,7 @@ export class AuthController {
 
             res.render('my-cards', {
                 member,
+                interestsOnMyDuplicates,
                 currentPage: 'my-cards'
             });
         } catch (error) {

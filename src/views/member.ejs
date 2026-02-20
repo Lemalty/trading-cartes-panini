@@ -33,6 +33,29 @@
         .card-badge-wanted {
             background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
         }
+        .interest-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-interested {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            border: none;
+            cursor: default;
+        }
+        .btn-not-interested {
+            background: rgba(255,255,255,0.1);
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-not-interested:hover {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10B981;
+            border-color: #10B981;
+        }
     </style>
 </head>
 <body class="bg-mesh min-h-screen p-3 sm:p-4 md:p-8">
@@ -86,10 +109,40 @@
                     Cartes disponibles a l'echange
                 </h2>
 
+                <% if (!member.isLoggedIn) { %>
+                    <p class="text-slate-400 text-xs mb-3 italic">
+                        <a href="/login" class="text-sky-400 hover:underline">Connectez-vous</a> pour signaler votre interet pour une carte.
+                    </p>
+                <% } else if (member.isOwnProfile) { %>
+                    <p class="text-slate-400 text-xs mb-3 italic">
+                        Ce sont vos propres doubles.
+                    </p>
+                <% } else { %>
+                    <p class="text-slate-400 text-xs mb-3 italic">
+                        Cliquez sur "Je suis interesse" pour signaler votre interet a <strong class="text-white"><%= member.displayName %></strong>.
+                    </p>
+                <% } %>
+
                 <div class="flex flex-wrap gap-2 sm:gap-3">
-                    <% member.duplicates.forEach(function(card) { %>
-                        <div class="card-badge px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white text-sm sm:text-base font-semibold shadow-lg">
-                            <%= card %>
+                    <% member.duplicates.forEach(function(dup) { %>
+                        <div class="interest-item">
+                            <div class="card-badge px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-white text-sm sm:text-base font-semibold shadow-lg">
+                                <%= dup.cardNumber %>
+                            </div>
+                            <% if (member.isLoggedIn && !member.isOwnProfile) { %>
+                                <button
+                                    class="interest-btn px-2 sm:px-3 py-1 rounded-lg text-xs font-semibold <%= dup.isInterestedByCurrentUser ? 'btn-interested' : 'btn-not-interested' %>"
+                                    data-duplicate-id="<%= dup.duplicateId %>"
+                                    data-interested="<%= dup.isInterestedByCurrentUser ? 'true' : 'false' %>"
+                                    <%= dup.isInterestedByCurrentUser ? 'disabled' : '' %>
+                                >
+                                    <% if (dup.isInterestedByCurrentUser) { %>
+                                        ✓ Interesse
+                                    <% } else { %>
+                                        Je suis interesse
+                                    <% } %>
+                                </button>
+                            <% } %>
                         </div>
                     <% }); %>
                 </div>
@@ -140,6 +193,50 @@
     </div>
 </div>
 
+<% if (member.isLoggedIn && !member.isOwnProfile) { %>
+<script>
+    document.querySelectorAll('.interest-btn').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+            const duplicateId = btn.dataset.duplicateId;
+            const isInterested = btn.dataset.interested === 'true';
+
+            btn.disabled = true;
+            btn.textContent = '...';
+
+            try {
+                const response = await fetch('/api/interest/' + duplicateId, {
+                    method: isInterested ? 'DELETE' : 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    if (!isInterested) {
+                        btn.dataset.interested = 'true';
+                        btn.className = btn.className.replace('btn-not-interested', 'btn-interested');
+                        btn.textContent = '✓ Interesse';
+                        btn.disabled = true;
+                    } else {
+                        btn.dataset.interested = 'false';
+                        btn.className = btn.className.replace('btn-interested', 'btn-not-interested');
+                        btn.textContent = 'Je suis interesse';
+                        btn.disabled = false;
+                    }
+                } else {
+                    alert(data.error || 'Une erreur est survenue');
+                    btn.disabled = false;
+                    btn.textContent = isInterested ? '✓ Interesse' : 'Je suis interesse';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erreur de connexion au serveur');
+                btn.disabled = false;
+                btn.textContent = isInterested ? '✓ Interesse' : 'Je suis interesse';
+            }
+        });
+    });
+</script>
+<% } %>
 <%- include('partials/footer') %>
 
 </body>

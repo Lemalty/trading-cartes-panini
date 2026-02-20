@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, JoinColumn } from 'typeorm';
 import { Member } from './Member.entity.js';
 import { Card } from './Card.entity.js';
+import { Interest } from './Interest.entity.js';
 
 @Entity('duplicates')
 export class Duplicate {
@@ -14,6 +15,9 @@ export class Duplicate {
     @ManyToOne(() => Card, card => card.duplicates, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'cardId' })
     card!: Card;
+
+    @OneToMany(() => Interest, interest => interest.duplicate, { cascade: true })
+    interests!: Interest[];
 
     @CreateDateColumn()
     createdAt!: Date;
