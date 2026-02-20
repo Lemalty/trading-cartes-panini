@@ -11,9 +11,35 @@ export interface ParsedCard {
 export interface MemberWithDuplicates {
     id: number;
     displayName: string;
+    team: string | null;
     duplicates: string[];
     wanted: string[];
     createdAt: Date;
+}
+
+export interface DuplicateWithInterest {
+    duplicateId: number;
+    cardNumber: string;
+    isInterestedByCurrentUser: boolean;
+}
+
+export interface MemberPageData {
+    id: number;
+    displayName: string;
+    duplicates: DuplicateWithInterest[];
+    wanted: string[];
+    createdAt: Date;
+    isOwnProfile: boolean;
+    isLoggedIn: boolean;
+}
+
+export interface InterestOnMyDuplicate {
+    duplicateId: number;
+    cardNumber: string;
+    interestedMember: {
+        id: number;
+        displayName: string;
+    };
 }
 
 export interface CardWithMembers {
