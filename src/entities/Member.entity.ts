@@ -13,6 +13,9 @@ export class Member {
     @Column({ type: 'varchar', length: 255, nullable: true })
     passwordHash!: string | null;
 
+    @Column({ type: 'varchar', length: 100, nullable: true })
+    team!: string | null;
+
     @CreateDateColumn()
     createdAt!: Date;
 

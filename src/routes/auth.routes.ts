@@ -29,4 +29,7 @@ router.post('/api/my-cards/duplicates', requireAuth, (req, res) => authControlle
 // API - Mise à jour des cartes recherchées (protégée)
 router.post('/api/my-cards/wanted', requireAuth, (req, res) => authController.updateWanted(req, res));
 
+// API - Mise à jour de l'équipe (protégée)
+router.post('/api/my-cards/team', requireAuth, (req, res) => authController.updateTeam(req, res));
+
 export default router;
