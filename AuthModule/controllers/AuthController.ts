@@ -16,7 +16,7 @@ export class AuthController {
 
   static async register(req: Request, res: Response): Promise<void> {
     try {
-      const { clubName, sport, division, email, password, passwordConfirm } = req.body;
+      const { email, password, passwordConfirm } = req.body;
 
       if (password !== passwordConfirm) {
         res.render('auth/register', {
@@ -27,7 +27,7 @@ export class AuthController {
         return;
       }
 
-      const dto: RegisterDto = { clubName, sport, division, email, password };
+      const dto: RegisterDto = { email, password };
       await authService.register(dto);
 
       res.redirect('/login?registered=true');

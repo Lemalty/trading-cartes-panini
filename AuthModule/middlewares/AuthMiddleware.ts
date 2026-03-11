@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET || '';
 declare global {
   namespace Express {
     interface Request {
-      user?: { userId: string; clubId: string };
+      user?: { userId: string };
     }
   }
 }
@@ -23,7 +23,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   }
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as { userId: string; clubId: string };
+    const payload = jwt.verify(token, JWT_SECRET) as { userId: string };
 
     const isBlacklisted = await authService.isTokenBlacklisted(token);
     if (isBlacklisted) {
@@ -32,7 +32,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    req.user = { userId: payload.userId, clubId: payload.clubId };
+    req.user = { userId: payload.userId };
     next();
   } catch {
     res.clearCookie('token');

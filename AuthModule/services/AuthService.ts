@@ -6,7 +6,6 @@ import { RegisterDto } from '../dto/auth/RegisterDto.js';
 import { LoginDto } from '../dto/auth/LoginDto.js';
 
 import { User } from '../entities/User.entity.js';
-import { Club } from '../entities/Club.entity.js';
 import { PasswordReset } from '../entities/PasswordReset.entity.js';
 import { TokenBlacklist } from '../entities/TokenBlacklist.entity.js';
 
@@ -23,14 +22,12 @@ const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{10,}$/;
 
 export class AuthService {
   private userRepo: Repository<User>;
-  private clubRepo: Repository<Club>;
   private passwordResetRepo: Repository<PasswordReset>;
   private tokenBlacklistRepo: Repository<TokenBlacklist>;
 
   constructor() {
     const dataSource = getDataSource();
     this.userRepo = dataSource.getRepository(User);
-    this.clubRepo = dataSource.getRepository(Club);
     this.passwordResetRepo = dataSource.getRepository(PasswordReset);
     this.tokenBlacklistRepo = dataSource.getRepository(TokenBlacklist);
   }
@@ -40,7 +37,7 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto): Promise<void> {
-    if (!dto.email || !dto.password || !dto.clubName || !dto.sport || !dto.division) {
+    if (!dto.email || !dto.password) {
       throw new Error('All fields are required.');
     }
 
@@ -56,17 +53,9 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(dto.password, SALT_ROUNDS);
 
-    const club = this.clubRepo.create({
-      clubName: dto.clubName.trim(),
-      sport: dto.sport.trim(),
-      division: dto.division.trim(),
-    });
-    const savedClub = await this.clubRepo.save(club);
-
     const user = this.userRepo.create({
       email: dto.email.trim().toLowerCase(),
       passwordHash,
-      clubId: savedClub.id,
     });
     await this.userRepo.save(user);
 
@@ -125,7 +114,7 @@ export class AuthService {
     }
 
     const token = jwt.sign(
-      { userId: user.id, clubId: user.clubId },
+      { userId: user.id },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );

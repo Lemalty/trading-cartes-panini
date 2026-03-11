@@ -1,5 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { Club } from './Club.entity.js';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -14,13 +13,6 @@ export class User {
 
   @Column({ type: 'boolean', default: false })
   emailVerified!: boolean;
-
-  @Column({ type: 'uuid' })
-  clubId!: string;
-
-  @ManyToOne(() => Club, club => club.users, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'clubId' })
-  club!: Club;
 
   @CreateDateColumn()
   createdAt!: Date;
