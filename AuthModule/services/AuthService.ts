@@ -5,15 +5,13 @@ import { Repository } from 'typeorm';
 import { RegisterDto } from '../dto/auth/RegisterDto.js';
 import { LoginDto } from '../dto/auth/LoginDto.js';
 
-// These entity imports should point to your project's actual entity paths
 import { User } from '../entities/User.entity.js';
 import { Club } from '../entities/Club.entity.js';
 import { PasswordReset } from '../entities/PasswordReset.entity.js';
 import { TokenBlacklist } from '../entities/TokenBlacklist.entity.js';
 
-// Import your project's DataSource and MailerService
+// Import your project's DataSource — adjust path to match your project structure
 import { getDataSource } from '../config/Database.js';
-// import { MailerService } from '../services/MailerService.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || '';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
